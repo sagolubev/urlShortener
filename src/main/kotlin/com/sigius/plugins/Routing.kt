@@ -1,9 +1,6 @@
 package com.sigius.plugins
 
-import com.sigius.routes.mainRoute
-import com.sigius.routes.urlAll
-import com.sigius.routes.urlExpand
-import com.sigius.routes.urlShorten
+import com.sigius.routes.*
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
@@ -13,6 +10,7 @@ fun Application.configureRouting() {
         urlAll()
         urlShorten()
         urlExpand()
+        urlRedirect()
 //        trace { application.log.trace(it.buildText()) }
     }
 }
