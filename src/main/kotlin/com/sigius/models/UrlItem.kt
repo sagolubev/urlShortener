@@ -5,14 +5,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UrlItem(val id: String, val longUrl: String, val shortUrl: String)
 
-fun getUrlFromStorage(item_to_find: String): String {
-    var item: String
+fun getUrlFromStorage(item_to_find: String): UrlItem? {
     for(i in urlStorage){
         if(item_to_find == i.id){
-            return i.longUrl
+            return i
         }
     }
-    return "1"
+    return null
 }
 
 val urlStorage = mutableListOf<UrlItem>()
