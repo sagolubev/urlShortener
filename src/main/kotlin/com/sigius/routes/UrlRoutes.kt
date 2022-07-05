@@ -1,8 +1,6 @@
 package com.sigius.routes
 
-import com.sigius.models.UrlItem
-import com.sigius.models.getUrlFromStorage
-import com.sigius.models.urlStorage
+import com.sigius.models.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -23,8 +21,10 @@ fun isValidUrl(url: String): Boolean {
 fun Route.mainRoute() {
     route("/") {
         get {
-                val message = "{\"appName\": \"urlShortener\"}"
-                call.respond(message = message, status = HttpStatusCode.OK)
+                val message = OutputRootMessage( "urlShortener")
+                call.respond(
+                    message = message,
+                    status = HttpStatusCode.OK)
             }
         }
 }
@@ -34,14 +34,15 @@ fun Route.urlAll() {
         get {
             if (urlStorage.isNotEmpty()) {
                 call.application.environment.log.info("Respond from /url api with content")
-                call.respond(message = urlStorage, status = HttpStatusCode.OK)
+                call.respond(
+                    message = urlStorage,
+                    status = HttpStatusCode.OK)
             } else {
                 call.application.environment.log.info("Respond from /url api without content")
-                val message = "{ \"message\": \"No urls found\" }"
-                call.respondText(
-                    text = message,
-                    contentType = ContentType.Application.Json,
-                    status =HttpStatusCode.OK)
+                val message = OutputNoContentMessage("No urls found")
+                call.respond(
+                    message = message,
+                    status = HttpStatusCode.NoContent)
             }
         }
     }
@@ -52,18 +53,16 @@ fun Route.urlShorten() {
         get ("{longUrl?}"){
             val longUrl = call.parameters["longUrl"]
             if (longUrl == null) {
-                val message = "{\"errorMessage\": \"Missing longUrl\"}"
-                return@get call.respondText(
-                    text = message,
-                    contentType = ContentType.Application.Json,
+                val message = OutputErrorMessage("Missing longUrl")
+                return@get call.respond(
+                    message = message,
                     status = HttpStatusCode.BadRequest)
             }
             else if (!isValidUrl(longUrl.toString()) ) {
                 call.application.environment.log.info("Wrong url sent: $longUrl")
-                val message = "{\"errorMessage\": \"longUrl should be a valid URL, like http(s)://www.example.com\"}"
-                return@get call.respondText(
-                    text = message,
-                    contentType = ContentType.Application.Json,
+                val message = OutputErrorMessage("longUrl should be a valid URL, like http(s)://www.example.com")
+                return@get call.respond(
+                    message = message,
                     status = HttpStatusCode.BadRequest)
             }
             else {
@@ -71,10 +70,11 @@ fun Route.urlShorten() {
                 val shortUrl = "https://$shortDomain/u/$hash"
                 urlStorage.add(UrlItem(hash, longUrl, shortUrl))
                 call.application.environment.log.info("$longUrl saved as $shortUrl with id: $hash")
-                val message = "{\"shortenedUrl\": \"$shortUrl\"}"
-                call.respondText(
-                    text = message,
-                    contentType = ContentType.Application.Json,
+                val message = OutputMessage(
+                    longUrl = longUrl,
+                    shortUrl = shortUrl)
+                call.respond(
+                    message = message,
                     status = HttpStatusCode.Created)
             }
         }
@@ -87,19 +87,17 @@ fun Route.urlExpand() {
             val shortUrl = call.parameters["shortUrl"]
             if (shortUrl == null) {
                 call.application.environment.log.debug("Missing shortUrl in request")
-                val message = "{\"errorMessage\": \"Missing shortUrl\"}"
-                return@get call.respondText(
-                    text = message,
-                    contentType = ContentType.Application.Json,
+                val message = OutputErrorMessage("Missing shortUrl")
+                return@get call.respond(
+                    message = message,
                     status = HttpStatusCode.BadRequest
                 )
             } else if (!isValidUrl(shortUrl.toString())) {
                 call.application.environment.log.info("Wrong url sent: $shortUrl")
-                val message =
-                    "{\"errorMessage\": \"shortUrl should be a valid short URL, like http(s)://example.com/u/xxxxxxx\"}"
-                return@get call.respondText(
-                    text = message,
-                    contentType = ContentType.Application.Json,
+                val message = OutputErrorMessage(
+                    "shortUrl should be a valid short URL, like http(s)://example.com/u/xxxxxxx")
+                return@get call.respond(
+                    message = message,
                     status = HttpStatusCode.BadRequest
                 )
             } else {
@@ -108,17 +106,17 @@ fun Route.urlExpand() {
                 val longUrlObject = getUrlFromStorage(id)
                 if (longUrlObject != null) {
                     call.application.environment.log.info("Returned ${longUrlObject.shortUrl}")
-                    val message = "{\"longUrl\": \"${longUrlObject.longUrl}\", \"shortUrl\": \"${longUrlObject.shortUrl}\"}"
-                    call.respondText(
-                        text = message,
-                        contentType = ContentType.Application.Json,
+                    val message = OutputMessage(
+                        longUrl = longUrlObject.longUrl,
+                        shortUrl = longUrlObject.shortUrl)
+                    call.respond(
+                        message = message,
                         status = HttpStatusCode.OK)
                 } else {
                     call.application.environment.log.info("Returned nothing")
-                    val message = "{\"errorMessage\": \"No valid url was asked\"}"
-                    call.respondText(
-                        text = message,
-                        contentType = ContentType.Application.Json,
+                    val message = OutputErrorMessage("No valid url was asked")
+                    call.respond(
+                        message = message,
                         status = HttpStatusCode.BadRequest)
                 }
             }
@@ -130,10 +128,9 @@ fun Route.urlRedirect() {
         get ("{id}") {
             val id = call.parameters["id"]
             if (id == null) {
-                val message = "{\"errorMessage\": \"Missing id\"}"
-                return@get call.respondText(
-                    text = message,
-                    contentType = ContentType.Application.Json,
+                val message = OutputErrorMessage("Missing id")
+                return@get call.respond(
+                    message = message,
                     status = HttpStatusCode.BadRequest)
             }
             else {
@@ -147,10 +144,9 @@ fun Route.urlRedirect() {
                 }
                 else{
                     call.application.environment.log.info("Returned nothing")
-                    val message = "{\"errorMessage\": \"No valid url was asked\"}"
-                    call.respondText(
-                        text = message,
-                        contentType = ContentType.Application.Json,
+                    val message = OutputErrorMessage("No valid url was asked")
+                    call.respond(
+                        message = message,
                         status = HttpStatusCode.BadRequest)
                 }
             }
