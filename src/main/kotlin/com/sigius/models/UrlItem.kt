@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 data class UrlItem(val id: String, val longUrl: String, val shortUrl: String)
 
 fun getUrlFromStorage(item_to_find: String): UrlItem? {
-    for(i in urlStorage){
-        if(item_to_find == i.id){
+    for (i in urlStorage) {
+        if (item_to_find == i.id) {
             return i
         }
     }
@@ -16,13 +16,13 @@ fun getUrlFromStorage(item_to_find: String): UrlItem? {
 
 val urlStorage = mutableListOf<UrlItem>()
 
-//interface UrlStorage {
+// interface UrlStorage {
 //
 //    fun upsertUrl(hash: String, longUrl: String): CompletableFuture<Unit>
 //    fun findUrl(hash: String): CompletableFuture<UrlItem?>
-//}
+// }
 //
-//class InMemoryStorage : UrlStorage {
+// class InMemoryStorage : UrlStorage {
 //
 //    private val list: MutableList<UrlItem> = mutableListOf()
 //
@@ -33,9 +33,9 @@ val urlStorage = mutableListOf<UrlItem>()
 //    override fun findUrl(hash: String): CompletableFuture<UrlItem?> {
 //        TODO("Not yet implemented")
 //    }
-//}
+// }
 //
-//class CassandraStorage: UrlStorage {
+// class CassandraStorage: UrlStorage {
 //
 //    val casClient = ...
 //
@@ -52,4 +52,4 @@ val urlStorage = mutableListOf<UrlItem>()
 //
 //        TODO("Not yet implemented")
 //    }
-//}
+// }
