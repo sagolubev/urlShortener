@@ -21,6 +21,7 @@ fun Route.mainRoute() {
     route("/") {
         get {
             val message = OutputRootMessage("urlShortener")
+            call.application.environment.log.debug("Respond from / with app name")
             call.respond(
                 message = message,
                 status = HttpStatusCode.OK
@@ -33,13 +34,13 @@ fun Route.urlAll() {
     route("/url") {
         get {
             if (urlStorage.isNotEmpty()) {
-                call.application.environment.log.info("Respond from /url api with content")
+                call.application.environment.log.debug("Respond from /url api with content")
                 call.respond(
                     message = urlStorage,
                     status = HttpStatusCode.OK
                 )
             } else {
-                call.application.environment.log.info("Respond from /url api without content")
+                call.application.environment.log.debug("Respond from /url api without content")
                 val message = OutputNoContentMessage("No urls found")
                 call.respond(
                     message = message,
