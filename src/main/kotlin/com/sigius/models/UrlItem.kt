@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UrlItem(val id: String, val longUrl: String, val shortUrl: String)
 
+// FIXME: Работу c хранилищем урлов лучше абстрагировать за интерфейсом, что бы раутинг код не знал о специфике имплементации хранения данных и можно было прозрачно добавить кэширование.
 fun getUrlFromStorage(item_to_find: String): UrlItem? {
     for (i in urlStorage) {
         if (item_to_find == i.id) {
