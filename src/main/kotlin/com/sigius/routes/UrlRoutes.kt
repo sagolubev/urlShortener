@@ -6,6 +6,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
+// FIXME: Валидация правильного урла это хорошо!
 val regex = "^(https?|ftp)://[-a-zA-Z\\d+&@#/%?=~_|!:,.;]*[-a-zA-Z\\d+&@#/%=~_|]".toRegex()
 val shortDomain: String = System.getenv("SHORTDOMAIN") ?: "localhost"
 
@@ -44,7 +45,7 @@ fun Route.urlAll() {
                 val message = OutputNoContentMessage("No urls found")
                 call.respond(
                     message = message,
-                    status = HttpStatusCode.NoContent
+                    status = HttpStatusCode.NoContent // FIXME: Многие http клиенты проигнорируют тело ответа с этим статус кодом.
                 )
             }
         }
@@ -55,6 +56,9 @@ fun Route.urlShorten() {
     route("/url/shorten") {
         get("{longUrl?}") {
             val longUrl = call.parameters["longUrl"]
+
+            // FIXME: Я вижу паттерн по обработки краевых случаев и он в целом норм, но если бы эндпоинтов было много наверное это было слишком многословно.
+            //  Я бы наверное тут бросал исключение, а превращал бы их в json ответ в одном месте централизованно как описано тут https://ktor.io/docs/status-pages.html#exceptions
             if (longUrl == null) {
                 val message = OutputErrorMessage("Missing longUrl")
                 return@get call.respond(
@@ -69,7 +73,11 @@ fun Route.urlShorten() {
                     status = HttpStatusCode.BadRequest
                 )
             } else {
+
+                // FIXME: Что будет если мы случайно сгенерировали ID который уже существует ?
                 val hash = randomID()
+
+                // FIXME: Я думаю 'shortDomain' лучше сделать с префиксом протокола, что бы человек который настраивает сервис мог поставить его за nginx или чтото такое
                 val shortUrl = "https://$shortDomain/u/$hash"
                 urlStorage.add(UrlItem(hash, longUrl, shortUrl))
                 call.application.environment.log.info("$longUrl saved as $shortUrl with id: $hash")
