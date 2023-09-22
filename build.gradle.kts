@@ -5,8 +5,8 @@ val json_kotlin_test_version: String by project
 
 plugins {
     application
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.22"
     kotlin("jvm") version "1.8.22"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.10"
 }
 
 group = "com.sigius"
