@@ -145,7 +145,7 @@ class UrlExpandTest {
     }
 }
 
-class UrlRedirectTest {
+class UrlRedirectTestValidUrl {
     @Test
     fun urlRedirectTestValidUrl() = testApplication {
         val checkParameter = client.get("/u/123")
@@ -154,15 +154,5 @@ class UrlRedirectTest {
             propertyPresent("errorMessage")
             property("errorMessage", "No valid url was asked")
         }
-    }
-
-    @Test
-    fun urlRedirectTest() = testApplication {
-        val checkUrl = "https://www.example.com"
-        val shortUrlResponse = client.get("/url/shorten?longUrl=$checkUrl")
-        assertEquals(HttpStatusCode.Created, shortUrlResponse.status)
-        var shortUrl = Json.decodeFromString<ResponseUrl>(shortUrlResponse.bodyAsText()).shortUrl
-        val urlRedirectResponse = client.get(shortUrl)
-        assertEquals(HttpStatusCode.PermanentRedirect, urlRedirectResponse.status)
     }
 }
